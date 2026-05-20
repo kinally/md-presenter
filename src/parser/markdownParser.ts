@@ -1,5 +1,5 @@
 import type { SlideSection, SlideNode, ParseResult } from '@/types/slide'
-import { marked } from 'marked'
+import { marked, Token, Tokens } from 'marked'
 
 /**
  * 解析 Markdown 字符串，按标题划分为 SlideSection[]
@@ -38,7 +38,7 @@ export function parseMarkdown(md: string): ParseResult {
 }
 
 /** 将单个 marked token 转为 SlideNode[] */
-function tokenToSlideNodes(token: marked.Token, index: number): SlideNode[] {
+function tokenToSlideNodes(token: Token, index: number): SlideNode[] {
   const id = `slide-${index}`
 
   switch (token.type) {
@@ -46,14 +46,14 @@ function tokenToSlideNodes(token: marked.Token, index: number): SlideNode[] {
       return [{
         id,
         type: 'code',
-        content: (token as marked.Tokens.Code).text,
+        content: (token as Tokens.Code).text,
         readable: false,
         holdSeconds: 3,
       }]
     }
 
     case 'table': {
-      const t = token as marked.Tokens.Table
+      const t = token as Tokens.Table
       const html = renderTable(t)
       return [{
         id,
@@ -65,7 +65,7 @@ function tokenToSlideNodes(token: marked.Token, index: number): SlideNode[] {
     }
 
     case 'list': {
-      const t = token as marked.Tokens.List
+      const t = token as Tokens.List
       const html = renderList(t)
       return [{
         id,
@@ -77,7 +77,7 @@ function tokenToSlideNodes(token: marked.Token, index: number): SlideNode[] {
     }
 
     case 'paragraph': {
-      const text = (token as marked.Tokens.Paragraph).text
+      const text = (token as Tokens.Paragraph).text
       return [{
         id,
         type: 'paragraph',
@@ -99,7 +99,7 @@ function tokenToSlideNodes(token: marked.Token, index: number): SlideNode[] {
 }
 
 /** 简单渲染表格为 HTML */
-function renderTable(t: marked.Tokens.Table): string {
+function renderTable(t: Tokens.Table): string {
   let html = '<table><thead><tr>'
   for (const h of t.header) {
     html += `<th>${h.text}</th>`
@@ -117,7 +117,7 @@ function renderTable(t: marked.Tokens.Table): string {
 }
 
 /** 简单渲染列表为 HTML */
-function renderList(t: marked.Tokens.List): string {
+function renderList(t: Tokens.List): string {
   const tag = t.ordered ? 'ol' : 'ul'
   let html = `<${tag}>`
   for (const item of t.items) {
